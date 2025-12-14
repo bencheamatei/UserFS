@@ -1,0 +1,131 @@
+#!/bin/bash
+
+# aici initializez directorul radacina, daca el exista cumva
+# atunci il sterg (ca sa nu am informatia redundanta de data trecuta)
+# eventual pot sa modific asta dupa 
+
+if [ -d "userfsRoot" ]; then 
+    rm -rf "userfsRoot"
+fi
+
+mkdir "userfsRoot"
+echo "Scriptul UserFS a pornit"
+
+# trebuie sa execut functia odata la 30s 
+
+update_data() {
+    users=$(who | awk '{print $1}' | sort -u)
+
+    # aici actualizam informatiile despre utilizatorii activi
+    for user in $users; do 
+        dirUser="userfsRoot/$user"
+
+        if [ ! -d "$dirUser" ]; then 
+            # avem un nou utilizator logat
+            mkdir -p "$dirUser"
+        fi
+
+        ps -u "$user" > "$dirUser/procs"
+
+        if [ -f "$dirUser/lastLogin" ]; then 
+            rm "$dirUser/lastLogin"
+        fi
+    done
+
+    # acum ne ocupam de utilizatorii care poate s-au delogat intre timp
+    for x in "userfsRoot"/*; do 
+        
+        # linia asta verifica daca exista directorul cu numele x
+        # daca nu pur si simplu se da skip in for 
+        # de ce e importanta? 
+        # daca cumva (for god knows what reason) folderul userfsRoot e gol
+        # atunci o sa caute efectiv folderul userFs/*
+        # lucru care nu e bine :)
+
+        [ -e "$x" ] || continue 
+
+        curr=$(basename "$x")
+        if ! echo "$users" | grep -q "^$curr$"; then 
+            >"$x/procs"
+            date > "$x/lastLogin"
+        fi
+    done
+}
+
+update() {
+    while true; do 
+        update_data
+        sleep 30
+    done 
+}
+
+count_active_users() {
+    users=$(who | awk '{print $1}' | sort -u)
+    cnt=0
+    for user in $users; do 
+        ((cnt++))
+    done 
+    echo "$cnt"
+}
+
+show_active_users() {
+    users=$(who | awk '{print $1}' | sort -u)
+    echo "$users"
+}
+
+count_loggedOut_users() {
+    users=$(who | awk '{print $1}' | sort -u)
+    cnt=0
+    for x in "userfsRoot"/*; do 
+        [ -e "$x" ] || continue 
+        curr=$(basename "$x")
+        if ! echo "$users" | grep -q "^$curr$"; then 
+            ((cnt++))
+        fi
+    done
+    echo "$cnt"
+}
+
+show_loggedOut_users() {
+    users=$(who | awk '{print $1}' | sort -u)
+    for x in "userfsRoot"/*; do 
+        [ -e "$x" ] || continue 
+        curr=$(basename "$x")
+        if ! echo "$users" | grep -q "^$curr$"; then 
+            echo "$curr"
+        fi
+    done
+}
+
+update &
+upd_pid=$!
+trap "kill $upd_pid" EXIT
+
+while true; do 
+
+    read -r -n 1 ce
+
+    case "$ce" in 
+        1)
+            echo
+            count_active_users
+            ;;
+
+        2)
+            echo
+            show_active_users
+            ;;
+
+        3)
+            echo
+            count_loggedOut_users
+            ;;
+        
+        4)
+            echo
+            show_loggedOut_users
+            ;;
+        *)
+            ;;
+    esac
+done 
