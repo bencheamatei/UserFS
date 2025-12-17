@@ -61,26 +61,31 @@ update() {
 }
 
 count_active_users() {
-    users=$(who | awk '{print $1}' | sort -u)
     cnt=0
-    for user in $users; do 
-        ((cnt++))
-    done 
+    for x in "userfsRoot"/*; do 
+        [ -e "$x" ] || continue
+        if [ ! -f "$x/lastLogin" ]; then 
+            ((cnt++))
+        fi
+    done
     echo "$cnt"
 }
 
 show_active_users() {
-    users=$(who | awk '{print $1}' | sort -u)
-    echo "$users"
+    for x in "userfsRoot"/*; do 
+        [ -e "$x" ] || continue
+        if [ ! -f "$x/lastLogin" ]; then 
+            curr=$(basename "$x")
+            echo "$curr"
+        fi
+    done
 }
 
 count_loggedOut_users() {
-    users=$(who | awk '{print $1}' | sort -u)
     cnt=0
     for x in "userfsRoot"/*; do 
-        [ -e "$x" ] || continue 
-        curr=$(basename "$x")
-        if ! echo "$users" | grep -q "^$curr$"; then 
+        [ -e "$x" ] || continue
+        if [ -f "$x/lastLogin" ]; then 
             ((cnt++))
         fi
     done
@@ -88,16 +93,14 @@ count_loggedOut_users() {
 }
 
 show_loggedOut_users() {
-    users=$(who | awk '{print $1}' | sort -u)
     for x in "userfsRoot"/*; do 
-        [ -e "$x" ] || continue 
-        curr=$(basename "$x")
-        if ! echo "$users" | grep -q "^$curr$"; then 
-            echo "$curr"
+        [ -e "$x" ] || continue
+        if [ -f "$x/lastLogin" ]; then 
+            curr=$(basename "$x")
+            echo "$curr" 
         fi
     done
 }
-
 
 search_for_user() {
     target="$1"
