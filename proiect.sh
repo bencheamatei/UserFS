@@ -151,6 +151,25 @@ last_seen_active() {
 	echo "Utilizatorul $target nu a fost logat pe sistem"
 }
 
+show_last_processes() {
+    target=$1
+    for x in "userfsRoot"/*; do 
+        [ -e "$x" ] || continue 
+
+        curr=$(basename "$x")
+        if [[ "$curr" == "$1" ]]; then 
+            if [ -f "$x/lastLogin" ]; then 
+                echo "Utilizatorul $1 nu este logat pe sistem momentan"
+                return 0
+            else 
+                tail -n 10 "$x/lastLogin"
+                return 0
+            fi
+        fi
+    done
+    echo "Utilizatorul $1 nu a fost logat pe sistem"
+}
+
 update &
 upd_pid=$!
 trap "kill $upd_pid" EXIT
