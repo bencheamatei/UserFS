@@ -11,3 +11,5 @@ Scrieti un program (script) shell care reprezinta fiecare utilizator activ din s
 **Documentație & raport**
 
 - [Documentație](https://unibucro0-my.sharepoint.com/:p:/r/personal/matei_benchea_s_unibuc_ro/Documents/Presentation.pptx?d=w2d08610d8af846f4968d7c84689713ec&csf=1&web=1&e=6pLgYc)
+
+- [Raport](https://unibucro0-my.sharepoint.com/:w:/r/personal/matei_benchea_s_unibuc_ro/Documents/Document%204.docx?d=wff429553b87843bb83ec1ebc6f6184a5&csf=1&web=1&e=EEc5ue)
