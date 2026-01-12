@@ -158,7 +158,7 @@ show_last_processes() {
                 if [[ "$2" == "-a" ]]; then 
                     cat "$x/procs"
                 elif [[ "$2" == "-n" ]]; then 
-                    if [[ $3 =~ ^[0-9]+ ]]; then
+                    if [[ $3 =~ ^[0-9]+ ]]; then # verific sa imi dea numar, contrar e default
                         tail -n "$3" "$x/procs"
                     else 
                         tail "$x/procs"
@@ -172,6 +172,9 @@ show_last_processes() {
     done
     echo "Utilizatorul $1 nu a fost logat pe sistem"
 }
+
+# ceprean evil magic 
+# poate scoatem commurile cand prezentam )
 
 update &
 upd_pid=$!
